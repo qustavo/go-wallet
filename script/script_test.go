@@ -55,8 +55,26 @@ func TestScripts(t *testing.T) {
 			expectedAddr: "bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu",
 		},
 		{
-			name: "P2WSH-Multi",
+			name: "P2WSH-Multi(not-sorted)",
 			script: Wsh(Multi(2, []Key{
+				newKey("03a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff"),
+				newKey("0375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c"),
+				newKey("03c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f880"),
+			})),
+			expectedAddr: "bc1qwhahvweerhg22ghn8ssqjl5e6r6rjj92jhca266ccmxts65840ks3pu0dp",
+		},
+		{
+			name: "P2WSH-Multi(sorted)",
+			script: Wsh(Multi(2, []Key{
+				newKey("0375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c"),
+				newKey("03a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff"),
+				newKey("03c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f880"),
+			})),
+			expectedAddr: "bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej",
+		},
+		{
+			name: "P2WSH-Sortedmulti",
+			script: Wsh(Sortedmuti(2, []Key{
 				newKey("0375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c"),
 				newKey("03a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff"),
 				newKey("03c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f880"),

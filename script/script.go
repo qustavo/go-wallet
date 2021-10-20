@@ -1,6 +1,8 @@
 package script
 
 import (
+	"sort"
+
 	"github.com/btcsuite/btcutil/base58"
 )
 
@@ -142,6 +144,13 @@ type multi struct {
 }
 
 func Multi(m int, keys []Key) Script {
+	return &multi{m, keys}
+}
+
+func Sortedmuti(m int, keys []Key) Script {
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i].String() < keys[j].String()
+	})
 	return &multi{m, keys}
 }
 
