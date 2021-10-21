@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -34,7 +35,47 @@ type XPub struct {
 	key *hdkeychain.ExtendedKey
 }
 
+var (
+	keyOriginRegexp = regexp.MustCompile("\\[([0-9a-fA-F]{8})(.*)?\\](.+)")
+)
+
+// parseKeyOrigin returns the fingerprint and the derivation path (set)
+func parseKeyOrigin(s string) (string, string, string, error) {
+	submatch := keyOriginRegexp.FindStringSubmatch(s)
+	switch len(submatch) {
+	case 0:
+		return "", "", "", errors.New("invalid key origin")
+	case 3:
+	case 4:
+		return submatch[1], submatch[2], submatch[3], nil
+	}
+	panic("xxx")
+}
+
 func NewXPub(s string) (*XPub, error) {
+	// check if key has fingerprint: "[" + <8-byte> + "]".
+	if s[0] == '[' {
+		_, path, key, err := parseKeyOrigin(s)
+		if err != nil {
+			return nil, err
+		}
+
+		xpub, err := newXPub(key)
+		if err != nil {
+			return nil, err
+		}
+
+		if path != "" {
+			return xpub.Derive("m" + path)
+		}
+
+		return xpub, nil
+	}
+
+	return newXPub(s)
+}
+
+func newXPub(s string) (*XPub, error) {
 	key, err := hdkeychain.NewKeyFromString(s)
 	if err != nil {
 		return nil, err
@@ -48,6 +89,15 @@ func parsePath(path string, fn func(uint32) error) error {
 		return errors.New("xpub: invalid path prefix")
 	}
 	path = strings.TrimPrefix(path, "m/")
+
+	// Hardened levels can be defined as `'`, `h` or `H` so unify them into `'`
+	path = strings.Map(func(r rune) rune {
+		if r == 'h' || r == 'H' {
+			return '\''
+		}
+		return r
+	}, path)
+
 	levels := strings.Split(path, "/")
 	for _, level := range levels {
 		var v uint32
@@ -101,6 +151,4 @@ func (xpub *XPub) Child(i uint32) (Key, error) {
 	return &PubKey{key: pub.SerializeCompressed()}, nil
 }
 
-func (xpub *XPub) Key(n uint32) Key {
-	return nil
-}
+func (xpub *XPub) String() string { return xpub.key.String() }
