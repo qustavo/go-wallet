@@ -21,6 +21,10 @@ type PubKey struct {
 }
 
 func NewPubKey(s string) (*PubKey, error) {
+	if s == "" {
+		return nil, errors.New("pubkey can't be empty")
+	}
+
 	key, err := hex.DecodeString(s)
 	if err != nil {
 		return nil, fmt.Errorf("invalid key format: %w", err)

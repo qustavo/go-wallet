@@ -47,6 +47,14 @@ func (s *Script) Address(net Network) string {
 	return s.addrFn(net)
 }
 
+func New(s string) (*Script, error) {
+	script, err := parseScript(s)
+	if err != nil {
+		return nil, err
+	}
+	return script.Eval()
+}
+
 type ScriptExpr interface {
 	Eval() (*Script, error)
 }
@@ -181,11 +189,11 @@ type multi struct {
 	keys []string
 }
 
-func Multi(m int, keys []string) ScriptExpr {
+func Multi(m int, keys ...string) ScriptExpr {
 	return &multi{m, keys}
 }
 
-func Sortedmuti(m int, keys []string) ScriptExpr {
+func Sortedmulti(m int, keys ...string) ScriptExpr {
 	sort.Slice(keys, func(i, j int) bool {
 		return keys[i] < keys[j]
 	})
