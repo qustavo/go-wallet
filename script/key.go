@@ -3,6 +3,7 @@ package script
 import (
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -21,7 +22,7 @@ type PubKey struct {
 func NewPubKey(s string) (*PubKey, error) {
 	key, err := hex.DecodeString(s)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid key format: %w", err)
 	}
 	return &PubKey{key}, nil
 }

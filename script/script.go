@@ -34,129 +34,177 @@ var networks = map[Network]netParams{
 	},
 }
 
-type Script interface {
-	Bytes() []byte
-	Address(Network) string
+type Script struct {
+	bytes  []byte
+	addrFn func(Network) string
+}
+
+func (s *Script) Bytes() []byte {
+	return s.bytes
+}
+
+func (s *Script) Address(net Network) string {
+	return s.addrFn(net)
+}
+
+type ScriptExpr interface {
+	Eval() (*Script, error)
 }
 
 type p2Sh struct {
-	hash160 []byte
+	expr ScriptExpr
 }
 
-func Sh(s Script) Script {
-	// Execute the nested script
-	script := s.Bytes()
-
+func Sh(expr ScriptExpr) ScriptExpr {
 	return &p2Sh{
-		hash160: Hash160(script),
+		expr: expr,
 	}
 }
 
-func (s *p2Sh) Bytes() []byte {
-	return NewBytes(
-		[]byte{OP_HASH160, OP_PUSH_BYTES(20)},
-		s.hash160,
-		[]byte{OP_EQUAL},
-	)
-}
+func (s *p2Sh) Eval() (*Script, error) {
+	eval, err := s.expr.Eval()
+	if err != nil {
+		return nil, err
+	}
 
-func (s *p2Sh) Address(net Network) string {
-	return base58.CheckEncode(s.hash160, networks[net].p2sh)
+	hash160 := Hash160(eval.Bytes())
+	return &Script{
+		bytes: NewBytes(
+			[]byte{OP_HASH160, OP_PUSH_BYTES(20)},
+			hash160,
+			[]byte{OP_EQUAL},
+		),
+		addrFn: func(net Network) string {
+			return base58.CheckEncode(hash160, networks[net].p2sh)
+		},
+	}, nil
 }
 
 type p2Wsh struct {
-	sha256 []byte
+	expr ScriptExpr
 }
 
-func Wsh(s Script) Script {
+func Wsh(expr ScriptExpr) ScriptExpr {
 	return &p2Wsh{
-		sha256: Sha256(s.Bytes()),
+		expr: expr,
 	}
 }
 
-func (s *p2Wsh) Bytes() []byte {
-	return NewBytes(
-		[]byte{OP_0, OP_PUSH_BYTES(32)},
-		s.sha256,
-	)
-}
-
-func (s *p2Wsh) Address(net Network) string {
-	addr, err := encodeSegWitAddress(networks[net].bech32, 0x00, s.sha256)
+func (s *p2Wsh) Eval() (*Script, error) {
+	eval, err := s.expr.Eval()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return addr
+
+	hash256 := Sha256(eval.Bytes())
+
+	return &Script{
+		bytes: NewBytes(
+			[]byte{OP_0, OP_PUSH_BYTES(32)},
+			hash256,
+		),
+		addrFn: func(net Network) string {
+			addr, err := encodeSegWitAddress(networks[net].bech32, 0x00, hash256)
+			if err != nil {
+				panic(err)
+			}
+			return addr
+		},
+	}, nil
 }
 
 type p2Pkh struct {
-	hash160 []byte
+	key string
 }
 
-func Pkh(key Key) Script {
-	return &p2Pkh{
-		hash160: Hash160(key.Bytes()),
+func Pkh(key string) ScriptExpr {
+	return &p2Pkh{key: key}
+}
+
+func (s *p2Pkh) Eval() (*Script, error) {
+	key, err := NewPubKey(s.key)
+	if err != nil {
+		return nil, err
 	}
-}
 
-func (s *p2Pkh) Bytes() []byte {
-	return NewBytes(
-		[]byte{OP_DUP, OP_HASH160, OP_PUSH_BYTES(20)},
-		Hash160(s.hash160),
-		[]byte{OP_EQUALVERIFY, OP_CHECKSIG},
-	)
-}
+	hash160 := Hash160(key.Bytes())
+	script := &Script{
+		bytes: NewBytes(
+			[]byte{OP_DUP, OP_HASH160, OP_PUSH_BYTES(20)},
+			Hash160(hash160),
+			[]byte{OP_EQUALVERIFY, OP_CHECKSIG},
+		),
+		addrFn: func(net Network) string {
+			return base58.CheckEncode(hash160, networks[net].p2pkh)
+		},
+	}
 
-func (s *p2Pkh) Address(net Network) string {
-	return base58.CheckEncode(s.hash160, networks[net].p2pkh)
+	return script, nil
 }
 
 type p2Wpkh struct {
-	hash160 []byte
+	key string
 }
 
-func Wpkh(key Key) Script {
-	return &p2Wpkh{
-		hash160: Hash160(key.Bytes()),
-	}
+func Wpkh(key string) ScriptExpr {
+	return &p2Wpkh{key: key}
 }
 
-func (s *p2Wpkh) Bytes() []byte {
-	return NewBytes(
-		[]byte{OP_0, OP_PUSH_BYTES(20)},
-		s.hash160,
-	)
-}
-
-func (s *p2Wpkh) Address(net Network) string {
-	// TODO: refactor encodeSegWitAddress so that we can compute the computed
-	// bits on Wpkh constructor and this method never returns error.
-	addr, err := encodeSegWitAddress(networks[net].bech32, 0x00, s.hash160)
+func (s *p2Wpkh) Eval() (*Script, error) {
+	key, err := NewPubKey(s.key)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return addr
+
+	hash160 := Hash160(key.Bytes())
+	script := &Script{
+		bytes: NewBytes(
+			[]byte{OP_0, OP_PUSH_BYTES(20)},
+			hash160,
+		),
+		addrFn: func(net Network) string {
+			// TODO: refactor encodeSegWitAddress so that we can compute the computed
+			// bits on Wpkh constructor and this method never returns error.
+			addr, err := encodeSegWitAddress(networks[net].bech32, 0x00, hash160)
+			if err != nil {
+				panic(err)
+			}
+			return addr
+		},
+	}
+
+	return script, nil
 }
 
 type multi struct {
 	m    int
-	keys []Key
+	keys []string
 }
 
-func Multi(m int, keys []Key) Script {
+func Multi(m int, keys []string) ScriptExpr {
 	return &multi{m, keys}
 }
 
-func Sortedmuti(m int, keys []Key) Script {
+func Sortedmuti(m int, keys []string) ScriptExpr {
 	sort.Slice(keys, func(i, j int) bool {
-		return keys[i].String() < keys[j].String()
+		return keys[i] < keys[j]
 	})
 	return &multi{m, keys}
 }
 
-func (s *multi) Bytes() []byte {
+func (s *multi) Eval() (*Script, error) {
+	// Convert input keys from string into PubKey.
+	keys := make([]Key, len(s.keys))
+	for i, str := range s.keys {
+		key, err := NewPubKey(str)
+		if err != nil {
+			return nil, err
+		}
+		keys[i] = key
+	}
+
 	pushedKeys := []byte{}
-	for _, key := range s.keys {
+	for _, key := range keys {
 		pushedKey := NewBytes(
 			[]byte{OP_PUSH_BYTES(33)},
 			key.Bytes(),
@@ -164,17 +212,18 @@ func (s *multi) Bytes() []byte {
 		pushedKeys = append(pushedKeys, pushedKey...)
 	}
 
-	return NewBytes(
-		[]byte{OP_N(s.m)}, // required keys
-		pushedKeys,        // [ 33 <key_1> ... 33 <key_N> ]
-		[]byte{
-			OP_N(len(s.keys)), // total keys
-			OP_CHECKMULTISIG,
-		},
-	)
+	return &Script{
+		bytes: NewBytes(
+			[]byte{OP_N(s.m)}, // required keys
+			pushedKeys,        // [ 33 <key_1> ... 33 <key_N> ]
+			[]byte{
+				OP_N(len(s.keys)), // total keys
+				OP_CHECKMULTISIG,
+			},
+		),
+		addrFn: func(net Network) string { return "" },
+	}, nil
 }
-
-func (m *multi) Address(Network) string { return "" }
 
 type Tree interface {
 }
