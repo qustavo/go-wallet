@@ -61,6 +61,11 @@ func TestScriptParser(t *testing.T) {
 				`,
 			expectedAddr: "bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej",
 		},
+		{
+			name:         "P2TR",
+			script:       "tr(03aaeb52dd7494c361049de67cc680e83ebcbbbdbeb13637d92cd845f70308af5e)",
+			expectedAddr: "<not implemented>",
+		},
 	}
 
 	for _, test := range testCases {

@@ -44,6 +44,9 @@ func (s *Script) Bytes() []byte {
 }
 
 func (s *Script) Address(net Network) string {
+	if s.addrFn == nil {
+		return "<not implemented>"
+	}
 	return s.addrFn(net)
 }
 
@@ -234,4 +237,20 @@ func (s *multi) Eval() (*Script, error) {
 }
 
 type Tree interface {
+}
+
+type tr struct {
+	key  string
+	tree Tree
+}
+
+func Tr(key string, tree Tree) ScriptExpr {
+	return &tr{
+		key:  key,
+		tree: tree,
+	}
+}
+
+func (s *tr) Eval() (*Script, error) {
+	return &Script{}, nil
 }

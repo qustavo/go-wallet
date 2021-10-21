@@ -71,9 +71,26 @@ func parseScriptR(s string, topLevel bool) (ScriptExpr, error) {
 
 		if op == "multi" {
 			return Multi(n, keys...), nil
-		} else {
-			return Sortedmulti(n, keys...), nil
 		}
+		return Sortedmulti(n, keys...), nil
+	case "tr":
+		if !topLevel {
+			return nil, errors.New("tr() must be a top-level expression")
+		}
+
+		var key, tree string
+		split := strings.Split(args, ",")
+		switch len(split) {
+		case 1:
+			key = args
+		case 2:
+			key = split[0]
+			tree = split[1]
+		default:
+			return nil, errors.New("too many arguments for tr()")
+		}
+
+		return Tr(key, tree), nil
 	}
 
 	return nil, fmt.Errorf("invalid op '%s'", op)
