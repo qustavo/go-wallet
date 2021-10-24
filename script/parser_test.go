@@ -19,7 +19,7 @@ func TestScriptParser(t *testing.T) {
 			expectedAddr: "1LqBGSKuX5yYUonjxT5qGfpUsXKYYWeabA",
 		},
 		{
-			name:         "P2SH-P2PWPKH",
+			name:         "P2SH-P2WPKH",
 			script:       "sh(wpkh(039b3b694b8fc5b5e07fb069c783cac754f5d38c3e08bed1960e31fdb1dda35c24))",
 			expectedAddr: "37VucYSaXLCAsxYyAPfbSi9eh4iEcbShgf",
 		},
