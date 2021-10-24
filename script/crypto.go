@@ -5,7 +5,7 @@ import (
 	"hash"
 
 	"github.com/btcsuite/btcutil/bech32"
-	"golang.org/x/crypto/ripemd160"
+	"golang.org/x/crypto/ripemd160" // nolint:staticcheck // SA1019 ripem160 is deprecated but it is used by Bitcoin
 )
 
 func calcHash(buf []byte, hasher hash.Hash) []byte {

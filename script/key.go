@@ -40,7 +40,7 @@ type XPub struct {
 }
 
 var (
-	keyOriginRegexp = regexp.MustCompile("\\[([0-9a-fA-F]{8})(.*)?\\](.+)")
+	keyOriginRegexp = regexp.MustCompile(`\[([0-9a-fA-F]{8})(.*)?\](.+)`)
 )
 
 // parseKeyOrigin returns the fingerprint and the derivation path (set)

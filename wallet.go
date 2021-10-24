@@ -10,7 +10,6 @@ type Wallet struct {
 	desc    string
 	script  *script.Script
 	network script.Network
-	child   uint32
 }
 
 func NewWallet(desc string, net script.Network) (*Wallet, error) {
