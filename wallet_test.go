@@ -9,7 +9,7 @@ import (
 )
 
 func TestAddrManagerChildren(t *testing.T) {
-	m, err := NewAddrManager(
+	m, err := NewWallet(
 		"wpkh([00000000/84'/0'/0'/0]zprvAWgYBBk7JR8Gjrh4UJQ2uJdG1r3WNRRfURiABBE3RvMXYSrRJL62XuezvGdPvG6GFBZduosCc1YP5wixPox7zhZLfiUm8aunE96BBa4Kei5)",
 		script.Mainnet,
 	)
