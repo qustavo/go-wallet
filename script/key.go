@@ -56,6 +56,17 @@ func parseKeyOrigin(s string) (string, string, string, error) {
 	panic("xxx")
 }
 
+// IsXPub returns if a string looks like an XPub or not
+func IsXPub(s string) bool {
+	marks := []string{"xpub", "xpriv", "ypub", "yprv", "zpub", "zprv"}
+	for _, mark := range marks {
+		if strings.Contains(s, mark) {
+			return true
+		}
+	}
+	return false
+}
+
 func NewXPub(s string) (*XPub, error) {
 	// check if key has fingerprint: "[" + <8-byte> + "]".
 	if s[0] == '[' {
@@ -156,3 +167,11 @@ func (xpub *XPub) Child(i uint32) (Key, error) {
 }
 
 func (xpub *XPub) String() string { return xpub.key.String() }
+func (xpub *XPub) PubKey() (string, error) {
+	pub, err := xpub.key.ECPubKey()
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(pub.SerializeCompressed()), nil
+}

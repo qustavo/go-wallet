@@ -70,7 +70,7 @@ func TestScriptParser(t *testing.T) {
 
 	for _, test := range testCases {
 		t.Run(test.name, func(t *testing.T) {
-			script, err := New(test.script)
+			script, err := Parse(test.script)
 			require.NoError(t, err)
 
 			addr := script.Address(Mainnet)

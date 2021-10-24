@@ -50,14 +50,6 @@ func (s *Script) Address(net Network) string {
 	return s.addrFn(net)
 }
 
-func New(s string) (*Script, error) {
-	script, err := parseScript(s)
-	if err != nil {
-		return nil, err
-	}
-	return script.Eval()
-}
-
 type ScriptExpr interface {
 	Eval() (*Script, error)
 }
