@@ -10,7 +10,7 @@ import (
 func TestXPubDerivations(t *testing.T) {
 	// Private key generated out of the BIP39 mnemonic seed:
 	// `abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about`
-	xpriv := "xprv9s21ZrQH143K3GJpoapnV8SFfukcVBSfeCficPSGfubmSFDxo1kuHnLisriDvSnRRuL2Qrg5ggqHKNVpxR86QEC8w35uxmGoggxtQTPvfUu"
+	// "xprv9s21ZrQH143K3GJpoapnV8SFfukcVBSfeCficPSGfubmSFDxo1kuHnLisriDvSnRRuL2Qrg5ggqHKNVpxR86QEC8w35uxmGoggxtQTPvfUu"
 
 	testCases := []struct {
 		name         string
@@ -19,7 +19,7 @@ func TestXPubDerivations(t *testing.T) {
 	}{
 		{
 			name: "BIP44",
-			key:  "[00000000/44'/0'/0'/0]" + xpriv,
+			key:  "[00000000/44'/0'/0'/0]xpub6ELHKXNimKbxMCytPh7EdC2QXx46T9qLDJWGnTraz1H9kMMFdcduoU69wh9cxP12wDxqAAfbaESWGYt5rREsX1J8iR2TEunvzvddduAPYcY",
 			expectedKeys: []string{
 				"03aaeb52dd7494c361049de67cc680e83ebcbbbdbeb13637d92cd845f70308af5e",
 				"02dfcaec532010d704860e20ad6aff8cf3477164ffb02f93d45c552dadc70ed24f",
@@ -28,20 +28,20 @@ func TestXPubDerivations(t *testing.T) {
 		},
 		{
 			name: "BIP49",
-			key:  "[00000000/49'/0'/0'/0]" + xpriv,
+			key:  "[00000000/49'/0'/0'/0]ypub6Ynvx7RLNYgWzFGM8aeU43hFNjTh7u5Grrup7Ryu2nKZ1Y8FWKaJZXiUrkJSnMmGVNBoVH1DNDtQ32tR4YFDRSpSUXjjvsiMnCvoPHVWXJP/42/*",
 			expectedKeys: []string{
-				"039b3b694b8fc5b5e07fb069c783cac754f5d38c3e08bed1960e31fdb1dda35c24",
-				"022a421fa4a65a87d1c3e4238155d85f7bd2c5bb87632f331b5722f110586aa198",
-				"02fdbd244eebd701270478af75ebb8894b963d61f2f686e366a626cb200ba13e45",
+				"021c4be1736ca2f364962244bba47d54dd569daefcb522d5116df82c56903dc599",
+				"02c1440e470a04822ea0731e92b570c57cc1f241f6d5fb11c7ad496a3217a7bf70",
+				"03eb2430b67655df8b1ffb497fa4a92d28cea4698f7690dd457f09a37fa52e7be6",
 			},
 		},
 		{
 			name: "BIP84",
-			key:  "[00000000/84'/0'/0'/0]" + xpriv,
+			key:  "[00000000/84'/0'/0'/0]zpub6u4KbU8TSgNuZSxzv7HaGq5Tk361gMHdZxnM4UYuwzg5CMLcNytzhobitV4Zq6vWtWHpG9QijsigkxAzXvQWyLRfLq1L7VxPP1tky1hPfD4/1/2/3/*",
 			expectedKeys: []string{
-				"0330d54fd0dd420a6e5f8d3624f5f3482cae350f79d5f0753bf5beef9c2d91af3c",
-				"03e775fd51f0dfb8cd865d9ff1cca2a158cf651fe997fdc9fee9c1d3b5e995ea77",
-				"038ffea936b2df76bf31220ebd56a34b30c6b86f40d3bd92664e2f5f98488dddfa",
+				"0316c81f32166ce834e22095b843728ee6d4483f9f3035ff03c353921ff42fa095",
+				"03cf40b9f31ab1f2b5fc30bb81f28d50587ad28841e35bbd92f7ab48820678730b",
+				"03984d879ee70ffa31c6b2bf6d44f7fbc380ad1e2cc410a14d72cd2a994daf2bf0",
 			},
 		},
 	}

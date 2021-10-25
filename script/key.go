@@ -39,21 +39,32 @@ type XPub struct {
 	key *hdkeychain.ExtendedKey
 }
 
+type xpubExpr struct {
+	fingerprint string
+	derivation  string
+	xpub        string
+	children    string
+}
+
 var (
-	keyOriginRegexp = regexp.MustCompile(`\[([0-9a-fA-F]{8})(.*)?\](.+)`)
+	// xpubExprRegexp matches key origin information, a Xpub and it's children derivation path
+	xpubExprRegexp = regexp.MustCompile(`\[([0-9a-fA-F]{8})(.*)?\](\w+)(\/.+)?`)
 )
 
-// parseKeyOrigin returns the fingerprint and the derivation path (set)
-func parseKeyOrigin(s string) (string, string, string, error) {
-	submatch := keyOriginRegexp.FindStringSubmatch(s)
-	switch len(submatch) {
-	case 0:
-		return "", "", "", errors.New("invalid key origin")
-	case 3:
-	case 4:
-		return submatch[1], submatch[2], submatch[3], nil
+// parseXpubExpr returns the fingerprint and the derivation path (set)
+func parseXpubExpr(s string) (*xpubExpr, error) {
+	submatch := xpubExprRegexp.FindStringSubmatch(s)
+	if len(submatch) == 0 {
+		// no match
+		return nil, errors.New("invalid key origin")
 	}
-	panic("xxx")
+
+	return &xpubExpr{
+		fingerprint: submatch[1],
+		derivation:  submatch[2],
+		xpub:        submatch[3],
+		children:    submatch[4],
+	}, nil
 }
 
 // IsXPub returns if a string looks like an XPub or not
@@ -70,17 +81,17 @@ func IsXPub(s string) bool {
 func NewXPub(s string) (*XPub, error) {
 	// check if key has fingerprint: "[" + <8-byte> + "]".
 	if s[0] == '[' {
-		_, path, key, err := parseKeyOrigin(s)
+		expr, err := parseXpubExpr(s)
 		if err != nil {
 			return nil, err
 		}
 
-		xpub, err := newXPub(key)
+		xpub, err := newXPub(expr.xpub)
 		if err != nil {
 			return nil, err
 		}
 
-		if path != "" {
+		if path := expr.children; path != "" {
 			return xpub.Derive("m" + path)
 		}
 
@@ -121,6 +132,10 @@ func parsePath(path string, fn func(uint32) error) error {
 		if strings.HasSuffix(level, "'") {
 			v = 0x80000000
 			level = strings.TrimSuffix(level, "'")
+		}
+
+		if level == "*" {
+			continue
 		}
 
 		atoi, err := strconv.Atoi(level)

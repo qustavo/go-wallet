@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAddrManagerChildren(t *testing.T) {
+func TestWalletAddrManager(t *testing.T) {
 	w, err := NewWallet(
-		"wpkh([00000000/84'/0'/0'/0]zprvAWgYBBk7JR8Gjrh4UJQ2uJdG1r3WNRRfURiABBE3RvMXYSrRJL62XuezvGdPvG6GFBZduosCc1YP5wixPox7zhZLfiUm8aunE96BBa4Kei5)",
+		"wpkh([00000000/84'/0'/0'/0]zpub6u4KbU8TSgNuZSxzv7HaGq5Tk361gMHdZxnM4UYuwzg5CMLcNytzhobitV4Zq6vWtWHpG9QijsigkxAzXvQWyLRfLq1L7VxPP1tky1hPfD4/*)",
 		script.Mainnet,
 	)
 	require.NoError(t, err)
