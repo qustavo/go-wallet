@@ -1,5 +1,5 @@
 # go-wallet
-![Build Status](https://github.com/qustavo/go-wallet/actions/workflows/test.yml/badge.svg)
+[![Build Status](https://github.com/qustavo/go-wallet/actions/workflows/test.yml/badge.svg)](https://github.com/qustavo/go-wallet/actions)
 [![Go Reference](https://pkg.go.dev/badge/github.com/qustavo/go-wallet.svg)](https://pkg.go.dev/github.com/qustavo/go-wallet)
 
 A work-in-progress Bitcoin wallet
