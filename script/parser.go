@@ -3,7 +3,6 @@ package script
 import (
 	"errors"
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -45,7 +44,6 @@ func deriveIfXpub(s, path string) (string, error) {
 		return "", err
 	}
 
-	log.Printf("path = %+v\n", path)
 	if path != "" {
 		xpub, err = xpub.Derive(path)
 		if err != nil {
