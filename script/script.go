@@ -11,6 +11,7 @@ type Network int
 const (
 	Mainnet Network = iota
 	Testnet
+	Regtest
 )
 
 var DefaultNetwork = Mainnet
@@ -31,6 +32,11 @@ var networks = map[Network]netParams{
 		p2pkh:  0x6F,
 		p2sh:   0xC4,
 		bech32: "tb",
+	},
+	Regtest: {
+		p2pkh:  0x6F,
+		p2sh:   0xC4,
+		bech32: "bcrt",
 	},
 }
 
