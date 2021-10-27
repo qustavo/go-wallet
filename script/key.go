@@ -39,31 +39,33 @@ type XPub struct {
 	key *hdkeychain.ExtendedKey
 }
 
-type xpubExpr struct {
-	fingerprint string
-	derivation  string
-	xpub        string
-	children    string
-}
-
 var (
-	// xpubExprRegexp matches key origin information, a Xpub and it's children derivation path
-	xpubExprRegexp = regexp.MustCompile(`\[([0-9a-fA-F]{8})(.*)?\](\w+)(\/.+)?`)
+	// keyOriginRegexp matches a key origin
+	keyOriginRegexp = regexp.MustCompile(`\[[0-9a-fA-F]{8}.*?\]`)
+	// xpubExprRegexp matches a Xpub and it's children derivation path
+	xpubExprRegexp = regexp.MustCompile(`(\w+)(\/.+)?`)
 )
 
-// parseXpubExpr returns the fingerprint and the derivation path (set)
+func trimKeyOrigin(s string) string {
+	return keyOriginRegexp.ReplaceAllString(s, "")
+}
+
+type xpubExpr struct {
+	xpub     string
+	children string
+}
+
+// parseXpubExpr returns a xpubExpr given a string
 func parseXpubExpr(s string) (*xpubExpr, error) {
 	submatch := xpubExprRegexp.FindStringSubmatch(s)
 	if len(submatch) == 0 {
 		// no match
-		return nil, errors.New("invalid key origin")
+		return nil, errors.New("invalid xpub format")
 	}
 
 	return &xpubExpr{
-		fingerprint: submatch[1],
-		derivation:  submatch[2],
-		xpub:        submatch[3],
-		children:    submatch[4],
+		xpub:     submatch[1],
+		children: submatch[2],
 	}, nil
 }
 
@@ -79,26 +81,21 @@ func IsXPub(s string) bool {
 }
 
 func NewXPub(s string) (*XPub, error) {
-	// check if key has fingerprint: "[" + <8-byte> + "]".
-	if s[0] == '[' {
-		expr, err := parseXpubExpr(s)
-		if err != nil {
-			return nil, err
-		}
-
-		xpub, err := newXPub(expr.xpub)
-		if err != nil {
-			return nil, err
-		}
-
-		if path := expr.children; path != "" {
-			return xpub.Derive("m" + path)
-		}
-
-		return xpub, nil
+	expr, err := parseXpubExpr(s)
+	if err != nil {
+		return nil, err
 	}
 
-	return newXPub(s)
+	xpub, err := newXPub(expr.xpub)
+	if err != nil {
+		return nil, err
+	}
+
+	if path := expr.children; path != "" {
+		return xpub.Derive("m" + path)
+	}
+
+	return xpub, nil
 }
 
 func newXPub(s string) (*XPub, error) {

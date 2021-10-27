@@ -35,6 +35,9 @@ func parseScript(s, path string) (ScriptExpr, error) {
 }
 
 func deriveIfXpub(s, path string) (string, error) {
+	// Remove the [hex/path] origin if present.
+	s = trimKeyOrigin(s)
+
 	if !IsXPub(s) {
 		return s, nil
 	}
