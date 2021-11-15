@@ -140,7 +140,7 @@ func (s *p2Pkh) Eval() (*Script, error) {
 	script := &Script{
 		bytes: NewBytes(
 			[]byte{OP_DUP, OP_HASH160, OP_PUSH_BYTES(20)},
-			Hash160(hash160),
+			hash160,
 			[]byte{OP_EQUALVERIFY, OP_CHECKSIG},
 		),
 		addrFn: func(net Network) string {
