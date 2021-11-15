@@ -26,7 +26,19 @@ The script package also implements a Output Script DSL to build scripts with a f
 |             | `hex(HEX)`                |✗|
 
 ### Example
-The following example shows how to parse a Script and print an address.
+The following example shows how generate addresses for an output descriptor using the cli tool:
+
+```bash
+$ wallet-cli newaddrs --num=1 "wsh(sortedmulti(2,
+	0375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c,
+	03a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff,
+	03c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f880
+))"
+
+m/0/0: bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej
+```
+
+Or using the wallet API:
 
 ```go
 package main
