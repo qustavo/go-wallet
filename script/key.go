@@ -71,7 +71,7 @@ func parseXpubExpr(s string) (*xpubExpr, error) {
 
 // IsXPub returns if a string looks like an XPub or not
 func IsXPub(s string) bool {
-	marks := []string{"xpub", "xpriv", "ypub", "yprv", "zpub", "zprv"}
+	marks := []string{"xpub", "vpub", "xpriv", "tprv", "ypub", "yprv", "zpub", "zprv"}
 	for _, mark := range marks {
 		if strings.Contains(s, mark) {
 			return true

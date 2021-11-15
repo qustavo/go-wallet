@@ -1,8 +1,6 @@
 package wallet
 
 import (
-	"fmt"
-
 	"github.com/qustavo/go-wallet/script"
 )
 
@@ -34,6 +32,6 @@ func (w *Wallet) Address() string {
 	return w.script.Address(w.network)
 }
 
-func (w *Wallet) Child(i uint32) (*Wallet, error) {
-	return newWallet(w.desc, w.network, fmt.Sprintf("m/%d", i))
+func (w *Wallet) Path(path string) (*Wallet, error) {
+	return newWallet(w.desc, w.network, path)
 }

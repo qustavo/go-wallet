@@ -1,6 +1,7 @@
 package wallet
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/qustavo/go-wallet/script"
@@ -23,7 +24,7 @@ func TestWalletAddrManager(t *testing.T) {
 
 	for i, addr := range addrs {
 		t.Run("", func(t *testing.T) {
-			child, err := w.Child(uint32(i))
+			child, err := w.Path(fmt.Sprintf("m/%d", i))
 			require.NoError(t, err)
 
 			assert.Equal(t, addr, child.Address())

@@ -50,7 +50,7 @@ func deriveIfXpub(s, path string) (string, error) {
 	if path != "" {
 		xpub, err = xpub.Derive(path)
 		if err != nil {
-			return "", nil
+			return "", err
 		}
 	}
 
